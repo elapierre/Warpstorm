@@ -6,7 +6,7 @@ yarn-error.log
 package-lock.json
 yarn.lock
 
-# Metro bundler
+# Metro bundler / Expo
 .expo/
 .expo-shared/
 
@@ -53,3 +53,22 @@ $RECYCLE.BIN/
 
 # Misc
 .env
+
+# Azure DevOps / Azure Pipelines
+# Ignore build artifacts
+**/bin/
+**/obj/
+**/TestResults/
+*.user
+*.suo
+*.nupkg
+*.nuspec
+*.cache
+*.log
+*.vs/
+*.vscode/
+*.pdb
+*.mdb
+
+# Azure Functions
+.local.settings.json
