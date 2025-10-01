@@ -1,28 +1,27 @@
+// SyncEngine.ts
 import axios from 'axios';
-import { loadItemsFromDB } from '../Persist/DB';
+import { loadItemsFromDB, markItemSynced } from '../Persist/DB';
 import { store, setItems } from '../Persist/StoreChanges';
 
 export class SyncEngine {
   constructor(private apiUrl: string) {}
 
   async pushUpdates() {
-    loadItemsFromDB(async (items) => {
-      for (const item of items.filter((i) => i.synced === 0)) {
-        try {
-          await axios.post(`${this.apiUrl}/items`, item);
-          // you could mark them synced in SQLite here
-        } catch (e) {
-          console.warn('Failed to sync', item.id, e);
-        }
+    const items = await loadItemsFromDB();
+    for (const item of items.filter((i) => i.synced === 0)) {
+      try {
+        await axios.post(`${this.apiUrl}/items`, item);
+        markItemSynced(item.id); // update SQLite after success
+      } catch (e) {
+        console.warn('Failed to sync', item.id, e);
       }
-    });
+    }
   }
 
   async pullUpdates(lastSync: string) {
     const { data } = await axios.get(`${this.apiUrl}/items?since=${lastSync}`);
-    // update Redux directly
     store.dispatch(setItems(data));
-    // also persist to SQLite if needed
+    // You could also persist these to SQLite here for offline
   }
 
   async sync(lastSync: string) {

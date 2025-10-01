@@ -2,43 +2,49 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
+import { RootStackParamList } from '../Nav/NavTypes';
 
-type RootStackParamList = {
-  Login: undefined;
-  TwoFactor: { sessionToken: string };
-};
+// Type the navigation prop
+type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
 export default function Login() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = async () => {
-    try {
-      // Example Okta authentication request
-      const response = await fetch('https://<your-okta-domain>/api/v1/authn', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: email, password }),
-      });
-      const data = await response.json();
+ const goToJobQueue = () => {
+    navigation.navigate('JobQueue');
+  };
 
-      if (data.status === 'MFA_REQUIRED') {
-        // Navigate to 2FA screen with session token
-        navigation.navigate('TwoFactor', { sessionToken: data.sessionToken });
-      } else if (data.status === 'SUCCESS') {
-        Alert.alert('Login successful', 'You are authenticated without 2FA.');
-      } else {
-        Alert.alert('Login failed', data.errorSummary || 'Unknown error');
-      }
-    } catch (err) {
-      console.error(err);
-      Alert.alert('Error', 'Login request failed');
-    }
+  const handleLogin = async () => {
+     try {
+       // Example Okta authentication request
+       const response = await fetch('https://<your-okta-domain>/api/v1/authn', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ username: email, password }),
+       });
+       const data = await response.json();
+
+       if (data.status === 'MFA_REQUIRED') {
+         // Navigate to 2FA screen with session token
+         navigation.navigate('TwoFactor', { sessionToken: data.sessionToken });
+       } else if (data.status === 'SUCCESS') {
+         Alert.alert('Login successful', 'You are authenticated without 2FA.');
+       } else {
+         Alert.alert('Login failed', data.errorSummary || 'Unknown error');
+       }
+     } catch (err) {
+       console.error(err);
+       Alert.alert('Error', 'Login request failed');
+     }
   };
 
   return (
     <View style={styles.container}>
+
+ <Button title="Go to JobQueue" onPress={goToJobQueue} />
+
       <Text style={styles.title}>Login</Text>
       <TextInput
         style={styles.input}
@@ -57,6 +63,8 @@ export default function Login() {
       />
       <Button title="Login" onPress={handleLogin} />
     </View>
+
+    
   );
 }
 

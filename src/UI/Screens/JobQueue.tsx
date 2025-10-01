@@ -1,11 +1,40 @@
 import React from "react";
 import { View, Text, FlatList, StyleSheet } from "react-native";
-import JobCard from "../components/JobCard";
+import JobCard from "../Components/JobCard";
 
-const jobs = [
-  { id: "1", title: "Warehouse Cleanup", details: "Shift: 9AM-5PM", isClockedIn: false },
-  { id: "2", title: "Inventory Check", details: "Shift: 10AM-2PM", isClockedIn: true },
-];
+type JobOrder = {
+  id: string;
+  title: string;
+  details: string;
+  isClockedIn: boolean;
+};
+
+// Helper to generate random order number in format "400XXXX"
+const generateOrderNumber = (): string => {
+  const randomDigits = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+  return `400${randomDigits}`;
+};
+
+// Helper to randomly pick true/false
+const randomBool = (): boolean => Math.random() < 0.5;
+
+// Function to generate N random jobs
+const generateJobs = (count: number): JobOrder[] => {
+  const jobs: JobOrder[] = [];
+  for (let i = 1; i <= count; i++) {
+    jobs.push({
+      id: i.toString(),
+      title: generateOrderNumber(),
+      details: `Shift: ${9 + Math.floor(Math.random() * 8)}AM-${5 + Math.floor(Math.random() * 4)}PM`,
+      isClockedIn: randomBool(),
+    });
+  }
+  return jobs;
+};
+
+// Example usage
+const jobs = generateJobs(10);
+console.log(jobs);
 
 export default function JobsScreen() {
   return (
