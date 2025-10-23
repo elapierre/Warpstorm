@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../Nav/NavTypes';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 
-type RootStackParamList = {
-  TwoFactor: { sessionToken: string };
-};
 
 export default function TwoFactor() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();

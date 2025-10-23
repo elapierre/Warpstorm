@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, Image, ImageSourcePropType, TouchableOpacity } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../Nav/NavTypes';
@@ -11,6 +11,8 @@ export default function Login() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+const logo: ImageSourcePropType = require('../../../assets/HolmanBlueSquareLogo.png');
 
  const goToJobQueue = () => {
     navigation.navigate('JobQueue');
@@ -43,7 +45,8 @@ export default function Login() {
   return (
     <View style={styles.container}>
 
- <Button title="Go to JobQueue" onPress={goToJobQueue} />
+      {/* Logo at top center */}
+    <Image source={logo} style={styles.logo} />
 
       <Text style={styles.title}>Login</Text>
       <TextInput
@@ -61,7 +64,16 @@ export default function Login() {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <Button title="Login" onPress={handleLogin} />
+
+       <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <Text style={styles.buttonText}>Login</Text>
+      </TouchableOpacity>
+
+
+      <TouchableOpacity style={styles.button} onPress={goToJobQueue}>
+        <Text style={styles.buttonText}>Go to JobQueue</Text>
+      </TouchableOpacity>
+
     </View>
 
     
@@ -69,7 +81,27 @@ export default function Login() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 20 },
+  container: { flex: 1, justifyContent: 'flex-start', alignItems: 'center', padding: 20 },
   title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' },
-  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 5, padding: 10, marginBottom: 15 },
+  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 5, padding: 10, marginBottom: 15, width: '80%' },
+ button: {
+    backgroundColor: '#007AFF',
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginVertical: 10,
+    width:'60%'
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  logo: {
+    width: 150,
+    height: 150,
+    resizeMode: 'contain',
+    marginBottom: 200, // space between logo and title
+  }
 });
