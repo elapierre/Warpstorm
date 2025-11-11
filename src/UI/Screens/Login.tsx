@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, Image, ImageSourcePropType, TouchableOpacity } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
-import { RootStackParamList } from '../Nav/NavTypes';
+import { RootStackParamList } from '../nav/navTypes';
+
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/stateStore';
+
 
 // Type the navigation prop
 type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
@@ -11,6 +15,12 @@ export default function Login() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  
+
+  const pushToken = useSelector(
+  (state: RootState) => state.pushToken?.expoPushToken ?? 'No token yet'
+);
 
 const logo: ImageSourcePropType = require('../../../assets/HolmanBlueSquareLogo.png');
 
@@ -64,6 +74,10 @@ const logo: ImageSourcePropType = require('../../../assets/HolmanBlueSquareLogo.
         onChangeText={setPassword}
         secureTextEntry
       />
+
+      <Text style={{ fontSize: 14 }}>
+        {pushToken ? `Expo Push Token: ${pushToken}` : 'Fetching push token...'}
+      </Text>
 
        <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Login</Text>

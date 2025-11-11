@@ -1,7 +1,7 @@
 // SyncEngine.ts
 import axios from 'axios';
-import { loadItemsFromDB, markItemSynced } from '../Persist/DB';
-import { store, setItems } from '../Persist/StoreChanges';
+import { loadItemsFromDB, markItemSynced } from './../sqlite/db';
+import { store, setItems } from './../sqlite/storeChanges';
 
 export class SyncEngine {
   constructor(private apiUrl: string) {}

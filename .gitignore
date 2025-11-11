@@ -29,6 +29,8 @@ DerivedData/
 # Android
 android/.gradle/
 android/app/build/
+# Ignore Google services API key
+android/app/google-services.json
 *.iml
 .gradle/
 local.properties
