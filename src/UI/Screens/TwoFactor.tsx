@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../Nav/NavTypes';
+import { RootStackParamList } from '../nav/navTypes';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 
 

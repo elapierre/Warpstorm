@@ -2,9 +2,9 @@
   "expo": {
     "name": "HubMobile",
     "slug": "HubMobile",
-    "version": "1.0.0",
+    "version": "3.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/holman_icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -16,18 +16,26 @@
       "supportsTablet": true
     },
     "android": {
+      "versionCode": 2,  
+      "googleServicesFile": "./android/app/google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.ericlapierre.HubMobile"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-sqlite"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "d32bd8fe-7a0e-4310-89ed-c7d12b79ebfa"
+      }
+    }
   }
 }
