@@ -1,13 +1,14 @@
 import axios from "axios";
-import { setToken } from "./TokenManager";
 import Constants from "expo-constants";
+import { setToken } from "./TokenManager";
 import { AuthSetting } from "../../Types/Auth/AuthSetting";
 
 
 /**
  * Logs in using Duende authentication and stores the token.
 */
-export const loginWithDuendeAsync = async () : Promise<void> => {
+export const loginWithDuendeAsync = async () : Promise<boolean> => {
+    try {
     const authSetting: AuthSetting = Constants.expoConfig?.extra?.authSettings as AuthSetting;
     const response = await axios.post(authSetting.authUrl, {
         client_id: authSetting.clientId,
@@ -18,10 +19,22 @@ export const loginWithDuendeAsync = async () : Promise<void> => {
             "Content-Type": "application/json",
         },
     });
-    const { access_token, expires_in } = response.data;
-    const token = access_token;
-    const expiresIn = expires_in;
-    setToken(token, expiresIn);
+
+    if(response.status == 200) {
+        const { access_token, expires_in } = response.data;
+        const token = access_token;
+        const expiresIn = expires_in;
+        setToken(token, expiresIn);
+        return true;
+    }
+    else {
+        throw new Error("Unsuccessful duende response", { cause: response });
+    }
+    } catch (error) {
+        // Log the error
+        console.log(error);
+        return false;
+    }
 };
 
 

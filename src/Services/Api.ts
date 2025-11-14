@@ -94,6 +94,7 @@ export async function GetAsync<T>(url: string, config?: AxiosRequestConfig): Pro
     return response.data;
 
   } catch (error) {
+    console.log(error);
     throw formatApiError(error);
   }
 }
