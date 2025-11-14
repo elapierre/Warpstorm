@@ -1,6 +1,6 @@
-import Api, { GetAsync, DeleteAsync, PostAsync, PutAsync } from "../../src/Services/Api";
-import * as tokenManager from "../../src/Services/Auth/TokenManager";
-import { ApiError } from "../../src/Types/ApiError";
+import Api, { GetAsync, DeleteAsync, PostAsync, PutAsync } from "../../src/services/api";
+import * as tokenManager from "../../src/services/auth/tokenManager";
+import { ApiError } from "../../src/types/apiError";
 
 /** Api Service Tests */
 describe("Api Service", () => {

@@ -1,7 +1,7 @@
-import { loginWithDuendeAsync } from "../../../src/Services/Auth/AuthService";
+import { loginWithDuendeAsync } from "../../../src/services/auth/authService";
 import axios from "axios";
 import Constants from 'expo-constants';
-import { AuthSetting } from "../../../src/Types/Auth/AuthSetting";
+import { AuthSetting } from "../../../src/types/auth/authSetting";
 
 const mockedAuthSettings = (Constants as any).expoConfig.extra.authSettings as AuthSetting;
 
