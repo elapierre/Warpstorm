@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
 import Constants from "expo-constants";
-import { getToken, isTokenExpired, clearToken } from "./Auth/TokenManager";
-import { ApiError } from "../Types/ApiError";
+import { getToken, isTokenExpired, clearToken } from "./Auth/tokenManager";
+import { ApiError } from "../Types/apiError";
 
 /** The base URL for the Holman Upfit API. */
 const baseURL : string = Constants.expoConfig?.extra?.apiBaseUrl as string; 
