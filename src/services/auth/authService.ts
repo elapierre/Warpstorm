@@ -1,7 +1,7 @@
 import axios from "axios";
+import { setToken } from "./tokenManager";
 import Constants from "expo-constants";
-import { setToken } from "./TokenManager";
-import { AuthSetting } from "../../Types/Auth/AuthSetting";
+import { AuthSetting } from "../../types/auth/authSetting";
 
 
 /**
