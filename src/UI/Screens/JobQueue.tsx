@@ -1,13 +1,15 @@
 import React from "react";
 import { View, Text, FlatList, StyleSheet } from "react-native";
-import JobCard from "../Components/JobCard";
+
+import JobCard from "../components/jobCard";
+
 
 type JobOrder = {
   id: string;
   title: string;
   details: string;
   isClockedIn: boolean;
-};
+}
 
 // Helper to generate random order number in format "400XXXX"
 const generateOrderNumber = (): string => {

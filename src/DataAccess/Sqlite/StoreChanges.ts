@@ -1,5 +1,5 @@
 import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { persistItemToDB } from './DB'; // write to SQLite
+import { persistItemToDB } from '../sqlite/db'; // write to SQLite
 
 type Item = { id: string; name: string; synced: number; updatedAt: string };
 
