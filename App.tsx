@@ -13,13 +13,29 @@ import { store } from './src/redux/stateStore';
 import { setExpoPushToken } from './src/redux/pushNotice/pushTokenSlice';
 import { Provider } from 'react-redux';
 
+import { initDB } from './src/dataAccess/sqlite/db';
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
  
   useEffect(() => {
-    console.log('Start to register for push notifications');
-    registerForPushNotificationsAsync();
+    const initializeApp = async () => {
+      try {
+        // Initialize database tables (including UserDevices)
+        console.log('[App] Initializing database');
+        await initDB();
+        console.log('[App] Database initialized successfully');
+      } catch (error) {
+        console.error('[App] Database initialization failed:', error);
+        Alert.alert('Database Error', 'Failed to initialize database');
+      }
+      
+      // Register for push notifications
+      console.log('Start to register for push notifications');
+    };
+    
+    initializeApp();
     
     // Optional: Listen for notifications while app is foreground
     const subscription = Notifications.addNotificationReceivedListener(notification => {
