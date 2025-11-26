@@ -4,8 +4,11 @@ import { ExpoConfig, ConfigContext } from '@expo/config';
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: "HubMobile",
-  slug: "hub-mobile",
-  version: "1.0.0",
+  slug: "HubMobile",
+  version: "3.0.0",
+  plugins:[
+    "expo-web-browser"
+  ],
   extra: {
     apiBaseUrl: process.env.API_BASE_URL,
     oktaAuthUrl: process.env.OKTA_AUTH_URL,
@@ -15,5 +18,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       clientSecret: process.env.DUENDE_CLIENT_SECRET,
       grantType: process.env.DUENDE_GRANT_TYPE,
     },
+    eas: {
+        projectId: "d32bd8fe-7a0e-4310-89ed-c7d12b79ebfa"
+      }
+      
   },
+  
 });

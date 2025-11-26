@@ -1,5 +1,5 @@
 import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { persistItemToDB } from '../sqlite/db'; // write to SQLite
+import { persistOfflineRequest } from '../sqlite/db'; // write to SQLite
 
 type Item = { id: string; name: string; synced: number; updatedAt: string };
 
@@ -9,7 +9,10 @@ const itemsSlice = createSlice({
   reducers: {
     addItem: (state, action: PayloadAction<Item>) => {
       state.push(action.payload);
-      persistItemToDB(action.payload); // keep SQLite in sync
+      persistOfflineRequest({
+        requestType: 'addItem',
+        payload: JSON.stringify(action.payload)
+      }); // keep SQLite in sync
     },
     setItems: (_, action: PayloadAction<Item[]>) => {
       return action.payload;

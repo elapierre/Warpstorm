@@ -12,30 +12,19 @@ import JobQueueScreen from './src/ui/screens/jobQueue';
 import { store } from './src/redux/stateStore';
 import { setExpoPushToken } from './src/redux/pushNotice/pushTokenSlice';
 import { Provider } from 'react-redux';
-
-import { initDB } from './src/dataAccess/sqlite/db';
+import { startupService } from './src/services/startupService';
+import SchemaViewer from './src/ui/screens/schemaViewer';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
  
   useEffect(() => {
-    const initializeApp = async () => {
-      try {
-        // Initialize database tables (including UserDevices)
-        console.log('[App] Initializing database');
-        await initDB();
-        console.log('[App] Database initialized successfully');
-      } catch (error) {
-        console.error('[App] Database initialization failed:', error);
-        Alert.alert('Database Error', 'Failed to initialize database');
-      }
-      
-      // Register for push notifications
-      console.log('Start to register for push notifications');
-    };
-    
-    initializeApp();
+    console.log('Start to register for push notifications');
+    registerForPushNotificationsAsync();
+
+    // Initialize DB and device info
+    startupService.init().catch((err) => console.error('Startup init failed', err));
     
     // Optional: Listen for notifications while app is foreground
     const subscription = Notifications.addNotificationReceivedListener(notification => {
@@ -51,6 +40,9 @@ export default function App() {
       <Stack.Navigator initialRouteName="Login">
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="JobQueue" component={JobQueueScreen} />
+        {__DEV__ && (
+            <Stack.Screen name="SchemaViewer" component={SchemaViewer} />
+        )}
       </Stack.Navigator>
     </NavigationContainer>
     </Provider>
@@ -90,6 +82,7 @@ async function registerForPushNotificationsAsync() {
     const tokenResponse = await Notifications.getExpoPushTokenAsync();
     token = tokenResponse.data;
 
+    //STORE TOKEN IN REDUX STATESTORE
     store.dispatch(setExpoPushToken(token));
 
     console.log('Expo push token obtained:', token);

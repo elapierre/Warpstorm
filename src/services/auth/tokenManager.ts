@@ -1,39 +1,50 @@
-let accessToken: string | null = null;
-let expiresAt: number | null = null;
+import * as SecureStore from 'expo-secure-store';
+
+const TOKEN_KEY = 'accessToken';
+const EXPIRES_AT_KEY = 'expiresAt';
 
 /**
- * Sets the auth token and its expiration time.
- * @param token The auth token retrieved from the auth service.
- * @param expiresIn The number of seconds that the token is valid for.
+ * Stores the access token and its expiration time securely.
+ * @param token Access token from auth service
+ * @param expiresIn Seconds until token expires
  */
-export const setToken = (token: string, expiresIn: number) => {
-  accessToken = token;
-  expiresAt = Date.now() + expiresIn * 1000;
+export const setToken = async (token: string, expiresIn: number) => {
+  const expiresAt = Date.now() + expiresIn * 1000;
+  await SecureStore.setItemAsync(TOKEN_KEY, token);
+  await SecureStore.setItemAsync(EXPIRES_AT_KEY, expiresAt.toString());
 };
 
 /**
- * Gets the current auth token if it is not expired.
- * @returns The access token if present, null otherwise.
+ * Retrieves the current token if not expired, null otherwise.
  */
-export const getToken = (): string | null => {
-  if (isTokenExpired()) {
+export const getToken = async (): Promise<string | null> => {
+  const token = await SecureStore.getItemAsync(TOKEN_KEY);
+  const expiresAtStr = await SecureStore.getItemAsync(EXPIRES_AT_KEY);
+  if (!token || !expiresAtStr) return null;
+
+  const expiresAt = parseInt(expiresAtStr, 10);
+  if (Date.now() >= expiresAt) {
+    await clearToken();
     return null;
   }
-  return accessToken;
+
+  return token;
 };
 
 /**
- * Clears the stored auth token and expiration time.
+ * Clears the stored token and expiration time.
  */
-export const clearToken = () => {
-  accessToken = null;
-  expiresAt = null;
+export const clearToken = async () => {
+  await SecureStore.deleteItemAsync(TOKEN_KEY);
+  await SecureStore.deleteItemAsync(EXPIRES_AT_KEY);
 };
 
 /**
- * Checks if the current token is expired.
- * @returns True if the token is expired or not present, false otherwise.
+ * Checks whether the token is expired or missing.
  */
-export const isTokenExpired = (): boolean => {
-  return !accessToken || !expiresAt || Date.now() >= expiresAt;
+export const isTokenExpired = async (): Promise<boolean> => {
+  const token = await SecureStore.getItemAsync(TOKEN_KEY);
+  const expiresAtStr = await SecureStore.getItemAsync(EXPIRES_AT_KEY);
+  if (!token || !expiresAtStr) return true;
+  return Date.now() >= parseInt(expiresAtStr, 10);
 };

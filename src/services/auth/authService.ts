@@ -1,53 +1,72 @@
-import axios from "axios";
-import { setToken } from "./tokenManager";
-import Constants from "expo-constants";
-import { AuthSetting } from "../../types/auth/authSetting";
+// authService.ts
+import * as AuthSession from 'expo-auth-session';
+import * as SecureStore from 'expo-secure-store';
+import Constants from 'expo-constants';
 
+const authSettings = Constants.expoConfig?.extra?.authSettings;
 
-/**
- * Logs in using Duende authentication and stores the token.
-*/
-export const loginWithDuendeAsync = async () : Promise<boolean> => {
-    try {
-    const authSetting: AuthSetting = Constants.expoConfig?.extra?.authSettings as AuthSetting;
-    const response = await axios.post(authSetting.authUrl, {
-        client_id: authSetting.clientId,
-        client_secret: authSetting.clientSecret,
-        grant_type: authSetting.grantType,
-    }, {
-        headers: {
-            "Content-Type": "application/json",
-        },
-    });
-
-    if(response.status == 200) {
-        const { access_token, expires_in } = response.data;
-        const token = access_token;
-        const expiresIn = expires_in;
-        setToken(token, expiresIn);
-        return true;
-    }
-    else {
-        throw new Error("Unsuccessful duende response", { cause: response });
-    }
-    } catch (error) {
-        // Log the error
-        console.log(error);
-        return false;
-    }
+const discovery = {
+  authorizationEndpoint: authSettings.authorization_endpoint,
+  tokenEndpoint: authSettings.token_endpoint,
+  revocationEndpoint: authSettings.revocation_endpoint,
 };
 
+export interface AuthResult {
+  accessToken: string;
+  refreshToken?: string;
+  idToken?: string;
+  expiresIn?: number;
+}
 
-export const loginWithOktaAsync = async (username: string, password: string) : Promise<void> => {
-    const oktaAuthUrl: string = Constants.expoConfig?.extra?.oktaAuthUrl as string;
-    const response = await axios.post(oktaAuthUrl, {
-        username,
-        password,
-    }, {
-        headers: {
-            "Content-Type": "application/json",
-        },
+/**
+ * Performs OAuth2 login using Duende server and PKCE.
+ * Stores the token in secure storage.
+ */
+export const loginWithDuendeAsync = async (): Promise<AuthResult | null> => {
+  try {
+    const redirectUri = AuthSession.makeRedirectUri({ useProxy: true });
+
+    const authRequest = new AuthSession.AuthRequest({
+      clientId: authSettings.client_id,
+      scopes: ['openid', 'profile', 'email', 'offline_access'],
+      redirectUri,
+      responseType: AuthSession.ResponseType.Code,
     });
-    const { token, expiresIn } = response.data;
-    setToken(token, expiresIn);
+
+    await authRequest.promptAsync(discovery);
+
+    const result = await authRequest.exchangeCodeAsync(
+      {
+        code: authRequest.code!,
+        clientId: authSettings.client_id,
+        redirectUri,
+      },
+      discovery
+    );
+
+    if (!result.accessToken) return null;
+
+    // Store tokens securely
+    await SecureStore.setItemAsync('accessToken', result.accessToken);
+    if (result.refreshToken) {
+      await SecureStore.setItemAsync('refreshToken', result.refreshToken);
+    }
+
+    return {
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+      idToken: result.idToken,
+      expiresIn: result.expiresIn,
+    };
+  } catch (err) {
+    console.error('Login failed', err);
+    return null;
+  }
+};
+
+/**
+ * Retrieves access token from secure storage
+ */
+export const getToken = async (): Promise<string | null> => {
+  return await SecureStore.getItemAsync('accessToken');
 };

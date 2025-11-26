@@ -4,4 +4,5 @@ export type RootStackParamList = {
   Login: undefined;
   TwoFactor: { sessionToken: string };
   JobQueue: undefined; // add params here if needed
+  SchemaViewer: undefined;
 };

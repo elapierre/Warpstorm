@@ -1,10 +1,15 @@
 
 import * as SQLite from 'expo-sqlite';
 
-const db = SQLite.openDatabaseSync('app.db');
+const db = SQLite.openDatabaseSync('warpstorm.db');
 
+// ---------------------
+// DB Initialization
+// ---------------------
 export const initDB = async () => {
-  // UserData table - User profile and session information
+
+  console.log("Initializing SQLite database...");
+
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS UserData (
       userId TEXT PRIMARY KEY NOT NULL,
@@ -17,8 +22,7 @@ export const initDB = async () => {
       updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
   `);
-  
-  // UserDevices table - Multi-device push notification support
+
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS UserDevices (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,22 +39,21 @@ export const initDB = async () => {
       isActive INTEGER NOT NULL DEFAULT 1,
       createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      
       UNIQUE(userId, deviceId)
     );
   `);
-  
+
   await db.execAsync(`
     CREATE INDEX IF NOT EXISTS idx_user_devices_user
       ON UserDevices(userId, isActive);
   `);
-  
+
   await db.execAsync(`
     CREATE INDEX IF NOT EXISTS idx_user_devices_token
       ON UserDevices(pushToken);
   `);
-  
-  // TimeclockRecords table - Clock in/out events
+
+// TimeclockRecords table - Clock in/out events
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS TimeclockRecords (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -75,9 +78,8 @@ export const initDB = async () => {
     CREATE INDEX IF NOT EXISTS idx_timeclock_user
       ON TimeclockRecords(userId, clockInTime);
   `);
-  
-  // OrderData table - Job/Order information
-  await db.execAsync(`
+
+await db.execAsync(`
     CREATE TABLE IF NOT EXISTS OrderData (
       salesOrderId TEXT PRIMARY KEY NOT NULL,
       customerName TEXT NOT NULL,
@@ -148,19 +150,73 @@ export const initDB = async () => {
     CREATE INDEX IF NOT EXISTS idx_offline_requests_status
       ON OfflineRequests(status, retryCount);
   `);
+
+  // add other tables/indices as needed...
 };
 
-export const persistItemToDB = async (item: any) => {
-  await db.runAsync(
-    `INSERT OR REPLACE INTO items (id, name, synced, updatedAt) VALUES (?, ?, ?, ?)`,
-    [item.id, item.name, item.synced, item.updatedAt]
+// ---------------------
+// Generic DB Helpers
+// ---------------------
+export const runAsync = async (sql: string, params: any[] = []): Promise<void> => {
+  try {
+    await db.runAsync(sql, params);
+  } catch (err) {
+    console.error('DB execution error:', err);
+    throw err;
+  }
+};
+
+export const getAllAsync = async <T = any>(sql: string, params: any[] = []): Promise<T[]> => {
+  try {
+    const result = await db.getAllAsync<T>(sql, params);
+    return result;
+  } catch (err) {
+    console.error('DB query error:', err);
+    throw err;
+  }
+};
+
+export const insertOrReplace = async (table: string, columns: string[], values: any[]) => {
+  const placeholders = columns.map(() => '?').join(', ');
+  const sql = `INSERT OR REPLACE INTO ${table} (${columns.join(', ')}) VALUES (${placeholders})`;
+
+  try {
+    await db.runAsync(sql, values);
+  } catch (error) {
+    console.error('DB insertOrReplace error:', error);
+    throw error;
+  }
+};
+
+//WRITE TO THE OFFLINE REQUESTS TABLE
+export const persistOfflineRequest = async (request: {
+  id?: number; // optional if you want SQLite to autoincrement
+  requestType: string;
+  payload: string;
+  status?: string;
+  retryCount?: number;
+  errorMessage?: string | null;
+}) => {
+  await insertOrReplace(
+    'OfflineRequests',
+    ['id', 'requestType', 'payload', 'status', 'retryCount', 'errorMessage', 'updatedAt'],
+    [
+      request.id ?? null,                 // id can be null for autoincrement
+      request.requestType,
+      request.payload,
+      request.status ?? 'pending',
+      request.retryCount ?? 0,
+      request.errorMessage ?? null,
+      new Date().toISOString(),           // updatedAt timestamp
+    ]
   );
 };
 
+
 export const loadItemsFromDB = async (): Promise<any[]> => {
-  return await db.getAllAsync<any>(`SELECT * FROM items`);
+  return await getAllAsync<any>('SELECT * FROM OfflineRequests');
 };
 
 export const markItemSynced = async (id: string) => {
-  await db.runAsync(`UPDATE items SET synced = 1 WHERE id = ?`, [id]);
+  await runAsync('UPDATE OfflineRequests SET synced = 1 WHERE id = ?', [id]);
 };

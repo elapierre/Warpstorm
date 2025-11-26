@@ -18,43 +18,48 @@ const Api = axios.create({
 /** 
  * Adds the authorization token to the request headers if available and not expired. 
  */
-Api.interceptors.request.use(config => {
-    const token = getToken();
-    
-    if(token && !isTokenExpired()) {
+// Async request interceptor
+Api.interceptors.request.use(
+  async (config) => {
+    try {
+      const token = await getToken(); // async now
+      if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    } catch (err) {
+      console.warn('Error retrieving token for request:', err);
+      return config;
     }
-
-    return config;
-  }
+  },
+  (error) => Promise.reject(error)
 );
 
-// Response interceptor to handle errors
+// Response interceptor (401 handling)
 Api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
+
     if (error.response?.status === 401 && !originalRequest._retry) {
-        originalRequest._retry = true;
+      originalRequest._retry = true;
 
-        try {
-            // TODO: Need to figure out the Okta flow and reconsider this part 
-            // await loginWithDuendeAsync();
-            // const newToken = getToken();
+      try {
+        // Optionally trigger a login refresh here:
+        // await loginWithDuendeAsync();
+        const newToken = await getToken();
 
-            // if (newToken){
-            //     originalRequest.headers = {
-            //         ...originalRequest.headers,
-            //         Authorization: `Bearer ${newToken}`,
-            //     };
-
-            //     return api(originalRequest);
-            // }
-
-        } catch (authError) {
-            clearToken();
-            return Promise.reject(authError);
+        if (newToken) {
+          originalRequest.headers = {
+            ...originalRequest.headers,
+            Authorization: `Bearer ${newToken}`,
+          };
+          return Api(originalRequest); // retry request
         }
+      } catch (authError) {
+        await clearToken();
+        return Promise.reject(authError);
+      }
     }
 
     return Promise.reject(error);
