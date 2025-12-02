@@ -1,27 +1,58 @@
 import 'dotenv/config';
 import { ExpoConfig, ConfigContext } from '@expo/config';
 
-export default ({ config }: ConfigContext): ExpoConfig => ({
-  ...config,
-  name: "HubMobile",
-  slug: "HubMobile",
-  version: "3.0.0",
-  plugins:[
-    "expo-web-browser"
-  ],
-  extra: {
-    apiBaseUrl: process.env.API_BASE_URL,
-    oktaAuthUrl: process.env.OKTA_AUTH_URL,
-    authSettings: {
-      authUrl: process.env.DUENDE_AUTH_URL,
-      clientId: process.env.DUENDE_CLIENT_ID,
-      clientSecret: process.env.DUENDE_CLIENT_SECRET,
-      grantType: process.env.DUENDE_GRANT_TYPE,
+export default ({ config }: ConfigContext): ExpoConfig => {
+  const isLocal = process.env.LOCAL_BUILD === '1'; // Set this for local builds
+
+  return {
+    ...config,
+    name: "HubMobile",
+    slug: "HubMobile",
+    version: "3.0.0",
+    orientation: "portrait",
+    icon: "./assets/holman_icon.png",
+    userInterfaceStyle: "light",
+    splash: {
+      image: "./assets/splash-icon.png",
+      resizeMode: "contain",
+      backgroundColor: "#ffffff",
     },
-    eas: {
-        projectId: "d32bd8fe-7a0e-4310-89ed-c7d12b79ebfa"
-      }
-      
-  },
-  
-});
+    android: {
+      ...config.android,
+      package: "com.ericlapierre.HubMobile",
+      versionCode: 2,
+      adaptiveIcon: {
+        foregroundImage: "./assets/adaptive-icon.png",
+        backgroundColor: "#ffffff",
+      },
+      edgeToEdgeEnabled: true,
+      predictiveBackGestureEnabled: false,
+      // Only include for local builds
+      ...(isLocal
+    ? { googleServicesFile: "./android/app/google-services.json" }
+    : { googleServicesFile: process.env.GOOGLE_SERVICES_JSON }),
+    },
+    ios: {
+      supportsTablet: true,
+    },
+    web: {
+      favicon: "./assets/favicon.png",
+    },
+    plugins: [
+      "expo-web-browser",
+      "expo-sqlite",
+    ],
+    extra: {
+      apiBaseUrl: process.env.API_BASE_URL,
+      oktaAuthUrl: process.env.OKTA_AUTH_URL,
+      authSettings: {
+        authUrl: process.env.DUENDE_AUTH_URL,
+        clientId: process.env.DUENDE_CLIENT_ID,
+        grantType: "authorization_code", // PKCE uses authorization_code
+    },
+      eas: {
+        projectId: "d32bd8fe-7a0e-4310-89ed-c7d12b79ebfa",
+      },
+    },
+  };
+};

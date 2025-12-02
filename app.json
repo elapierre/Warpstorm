@@ -17,7 +17,6 @@
     },
     "android": {
       "versionCode": 2,  
-      "googleServicesFile": "./android/app/google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -29,9 +28,6 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      "expo-sqlite"
-    ],
     "extra": {
       "eas": {
         "projectId": "d32bd8fe-7a0e-4310-89ed-c7d12b79ebfa"
