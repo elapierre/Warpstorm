@@ -7,6 +7,13 @@ import { RootStackParamList } from '../nav/navTypes';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/stateStore';
 
+import * as WebBrowser from 'expo-web-browser';
+import * as AuthSession from 'expo-auth-session';
+import Constants from 'expo-constants';
+import { setToken } from '../../services/auth/tokenManager';
+
+
+WebBrowser.maybeCompleteAuthSession(); // must be called once
 
 // Type the navigation prop
 type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
@@ -16,7 +23,7 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  
+ 
 
   const pushToken = useSelector(
   (state: RootState) => state.pushToken?.expoPushToken ?? 'No token yet'
@@ -28,29 +35,35 @@ const logo: ImageSourcePropType = require('../../../assets/HolmanBlueSquareLogo.
     navigation.navigate('JobQueue');
   };
 
-  const handleLogin = async () => {
-     try {
-       // Example Okta authentication request
-       const response = await fetch('https://<your-okta-domain>/api/v1/authn', {
-         method: 'POST',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify({ username: email, password }),
-       });
-       const data = await response.json();
+const goToSchemaViewer = () => {
+    navigation.navigate('SchemaViewer');
+  }
 
-       if (data.status === 'MFA_REQUIRED') {
-         // Navigate to 2FA screen with session token
-         navigation.navigate('TwoFactor', { sessionToken: data.sessionToken });
-       } else if (data.status === 'SUCCESS') {
-         Alert.alert('Login successful', 'You are authenticated without 2FA.');
-       } else {
-         Alert.alert('Login failed', data.errorSummary || 'Unknown error');
-       }
-     } catch (err) {
-       console.error(err);
-       Alert.alert('Error', 'Login request failed');
-     }
-  };
+  const [request, response, promptAsync] = AuthSession.useAuthRequest(
+  {
+    clientId: Constants.expoConfig?.extra?.authSettings.clientId,
+    scopes: ['openid', 'profile', 'email', 'offline_access'],
+    redirectUri: AuthSession.makeRedirectUri({ scheme: 'hub-mobile' }),
+    usePKCE: true,
+  },
+  {
+    authorizationEndpoint: 'https://passport.dev.holman.com/sts/connect/authorize',
+    tokenEndpoint: 'https://passport.dev.holman.com/sts/connect/token',
+    revocationEndpoint: 'https://passport.dev.holman.com/sts/connect/revocation',
+  }
+);
+
+React.useEffect(() => {
+  if (response?.type === 'success') {
+    const { access_token, expires_in } = response.params;
+    const expiresIn = parseInt(expires_in ?? '3600', 10);
+    setToken(access_token, expiresIn);
+    Alert.alert('Login Successful');
+  } else if (response?.type === 'error') {
+    Alert.alert('Login Failed', response.error?.message || 'Unknown error');
+  }
+}, [response]);
+
 
   return (
     <View style={styles.container}>
@@ -79,18 +92,29 @@ const logo: ImageSourcePropType = require('../../../assets/HolmanBlueSquareLogo.
         {pushToken ? `Expo Push Token: ${pushToken}` : 'Fetching push token...'}
       </Text>
 
-       <TouchableOpacity style={styles.button} onPress={handleLogin}>
+       <TouchableOpacity style={styles.button} onPress={() => promptAsync()}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
 
+      {__DEV__ && (
 
-      <TouchableOpacity style={styles.button} onPress={goToJobQueue}>
-        <Text style={styles.buttonText}>Go to JobQueue</Text>
-      </TouchableOpacity>
+        <>
+          <TouchableOpacity style={styles.button} onPress={goToSchemaViewer}>
+            <Text style={styles.buttonText}>View Schema</Text>
+          </TouchableOpacity>
+               
+         
+
+          <TouchableOpacity style={styles.button} onPress={goToJobQueue}>
+            <Text style={styles.buttonText}>Go to JobQueue</Text>
+          </TouchableOpacity>
+        </>
+
+      )}
 
     </View>
 
-    
+   
   );
 }
 
