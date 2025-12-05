@@ -13,7 +13,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     icon: "./assets/holman_icon.png",
     userInterfaceStyle: "light",
     splash: {
-      image: "./assets/splash-icon.png",
+      image: "./assets/holman_icon.png",
       resizeMode: "contain",
       backgroundColor: "#ffffff",
     },
@@ -22,7 +22,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       package: "com.ericlapierre.HubMobile",
       versionCode: 2,
       adaptiveIcon: {
-        foregroundImage: "./assets/adaptive-icon.png",
+        foregroundImage: "./assets/holman_icon.png",
         backgroundColor: "#ffffff",
       },
       edgeToEdgeEnabled: true,

@@ -24,7 +24,7 @@ export interface AuthResult {
  */
 export const loginWithDuendeAsync = async (): Promise<AuthResult | null> => {
   try {
-    const redirectUri = AuthSession.makeRedirectUri({ useProxy: true });
+    const redirectUri = AuthSession.makeRedirectUri();
 
     const authRequest = new AuthSession.AuthRequest({
       clientId: authSettings.client_id,
@@ -33,11 +33,15 @@ export const loginWithDuendeAsync = async (): Promise<AuthResult | null> => {
       responseType: AuthSession.ResponseType.Code,
     });
 
-    await authRequest.promptAsync(discovery);
+    const authResult = await authRequest.promptAsync(discovery);
 
-    const result = await authRequest.exchangeCodeAsync(
+    if (authResult.type !== 'success' || !authResult.params.code) {
+      return null;
+    }
+
+    const result = await AuthSession.exchangeCodeAsync(
       {
-        code: authRequest.code!,
+        code: authResult.params.code,
         clientId: authSettings.client_id,
         redirectUri,
       },

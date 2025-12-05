@@ -12,7 +12,6 @@ import * as AuthSession from 'expo-auth-session';
 import Constants from 'expo-constants';
 import { setToken } from '../../services/auth/tokenManager';
 
-
 WebBrowser.maybeCompleteAuthSession(); // must be called once
 
 // Type the navigation prop
@@ -23,7 +22,7 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
- 
+  
 
   const pushToken = useSelector(
   (state: RootState) => state.pushToken?.expoPushToken ?? 'No token yet'
@@ -103,7 +102,7 @@ React.useEffect(() => {
             <Text style={styles.buttonText}>View Schema</Text>
           </TouchableOpacity>
                
-         
+          
 
           <TouchableOpacity style={styles.button} onPress={goToJobQueue}>
             <Text style={styles.buttonText}>Go to JobQueue</Text>
@@ -114,7 +113,7 @@ React.useEffect(() => {
 
     </View>
 
-   
+    
   );
 }
 
