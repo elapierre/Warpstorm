@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": ""
+          "current_key": "AIzaSyD06AE4nCiWUbJ7dXKk7MDmJ_INsoqHNUo"
         }
       ],
       "services": {
@@ -34,7 +34,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": ""
+          "current_key": "AIzaSyD06AE4nCiWUbJ7dXKk7MDmJ_INsoqHNUo"
         }
       ],
       "services": {
