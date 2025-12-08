@@ -1,57 +1,71 @@
 import React from "react";
-import { View, Text, FlatList, StyleSheet } from "react-native";
+import { View, Text, FlatList, StyleSheet, ActivityIndicator } from "react-native";
+import { JobCard } from "../components/jobCard";
+import { selectJobs } from "../../redux/job/selectors";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { Job } from "../../types/job";
+import { clockIn, clockOut } from "../../redux/job/jobSlice";
+import { fetchJobs, toggleClockStatus } from "../../redux/job/thunks";
 
-import JobCard from "../components/jobCard";
+/** Screen displaying the list of jobs with clock-in/out functionality */
+const JobsScreen: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const jobs = useAppSelector(selectJobs);
+  console.log("JobsScreen rendering with jobs:", jobs);
+  const loading = useAppSelector(state => state.job.loading);
 
+  const handleClockToggle = React.useCallback((jobId: string, shouldClockIn: boolean) => {
+    try {
+      console.log(`Toggling clock for job ${jobId} to ${shouldClockIn}`);
+      dispatch(toggleClockStatus({ id: jobId, shouldClockIn }));
+    } catch (error) {
+      console.error("Error toggling clock:", error);
+    }
+  }, [dispatch]);
 
-type JobOrder = {
-  id: string;
-  title: string;
-  details: string;
-  isClockedIn: boolean;
-}
+  const loadJobs = React.useCallback(() => {
+    try {
+      dispatch(fetchJobs());
+    } catch (error) {
+      console.error("Error loading jobs:", error);
+    }
+  }, [dispatch]);
 
-// Helper to generate random order number in format "400XXXX"
-const generateOrderNumber = (): string => {
-  const randomDigits = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-  return `400${randomDigits}`;
-};
+  React.useEffect(() => {
+    // Always refresh jobs in the background
+    loadJobs();
+    console.log("Jobs loaded:", jobs);
+  }, [loadJobs]);
 
-// Helper to randomly pick true/false
-const randomBool = (): boolean => Math.random() < 0.5;
+  const renderItem = React.useCallback(({ item }: { item: Job }) => (
+    <JobCard job={item} onClockToggle={handleClockToggle} />
+  ), [handleClockToggle]);
 
-// Function to generate N random jobs
-const generateJobs = (count: number): JobOrder[] => {
-  const jobs: JobOrder[] = [];
-  for (let i = 1; i <= count; i++) {
-    jobs.push({
-      id: i.toString(),
-      title: generateOrderNumber(),
-      details: `Shift: ${9 + Math.floor(Math.random() * 8)}AM-${5 + Math.floor(Math.random() * 4)}PM`,
-      isClockedIn: randomBool(),
-    });
-  }
-  return jobs;
-};
-
-// Example usage
-const jobs = generateJobs(10);
-console.log(jobs);
-
-export default function JobsScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Assigned Jobs</Text>
-      <FlatList
-        data={jobs}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <JobCard job={item} />}
-      />
+      
+      { loading && jobs.length === 0 ? (
+          <ActivityIndicator />
+       ) : 
+       (
+          <FlatList
+            data={jobs}
+            keyExtractor={(item) => item.id}
+            renderItem={renderItem}
+            extraData={jobs}
+            ListEmptyComponent={<Text>No jobs assigned</Text>}
+            onRefresh={loadJobs}
+            refreshing={loading}
+          />
+        )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
-  header: { fontSize: 22, marginBottom: 10 },
+  header: { fontSize: 22, fontWeight: "bold", marginBottom: 10 },
 });
+
+export default JobsScreen;
