@@ -9,6 +9,7 @@
     "web": "expo start --web",
     "test": "jest"
   },
+  
   "overrides": {
     "glob": "^10.5.0",
     "node-forge": "1.3.2"
