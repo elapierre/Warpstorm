@@ -132,6 +132,40 @@ await db.execAsync(`
       ON OrderData(requiredDate);
   `);
   
+  // UserCache table - Comprehensive user data cache
+  await db.execAsync(`
+    CREATE TABLE IF NOT EXISTS UserCache (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      userId TEXT NOT NULL,
+      cacheType TEXT NOT NULL, -- 'device_info', 'user_profile', 'preferences', etc.
+      dataKey TEXT NOT NULL,
+      dataValue TEXT,
+      jsonData TEXT, -- For complex objects
+      lastFetchedAt DATETIME,
+      expiresAt DATETIME,
+      synced INTEGER NOT NULL DEFAULT 0,
+      syncedAt DATETIME,
+      createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(userId, cacheType, dataKey)
+    );
+  `);
+
+  await db.execAsync(`
+    CREATE INDEX IF NOT EXISTS idx_user_cache_user_type
+      ON UserCache(userId, cacheType);
+  `);
+
+  await db.execAsync(`
+    CREATE INDEX IF NOT EXISTS idx_user_cache_sync
+      ON UserCache(synced, syncedAt);
+  `);
+
+  await db.execAsync(`
+    CREATE INDEX IF NOT EXISTS idx_user_cache_expires
+      ON UserCache(expiresAt);
+  `);
+
   // OfflineRequests table - Sync queue for pending operations
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS OfflineRequests (

@@ -11,6 +11,7 @@ import * as WebBrowser from 'expo-web-browser';
 import * as AuthSession from 'expo-auth-session';
 import Constants from 'expo-constants';
 import { setToken } from '../../services/auth/tokenManager';
+import { serviceManager } from '../../services/serviceManager';
 
 WebBrowser.maybeCompleteAuthSession(); // must be called once
 
@@ -28,7 +29,7 @@ export default function Login() {
   (state: RootState) => state.pushToken?.expoPushToken ?? 'No token yet'
 );
 
-const logo: ImageSourcePropType = require('../../../assets/HolmanBlueSquareLogo.png');
+const logo: ImageSourcePropType = require('../../../assets/upfit_icon_225.png');
 
  const goToJobQueue = () => {
     navigation.navigate('JobQueue');
@@ -37,6 +38,31 @@ const logo: ImageSourcePropType = require('../../../assets/HolmanBlueSquareLogo.
 const goToSchemaViewer = () => {
     navigation.navigate('SchemaViewer');
   }
+
+  const simulateLogin = async () => {
+    try {
+      // Simulate a logged-in user for testing
+      const testUserId = 'test-user-123';
+      
+      Alert.alert('Simulating Login...', 'Initializing user cache and writing to SQLite');
+      
+      // Trigger service manager to initialize user cache (this will write to SQLite)
+      await serviceManager.onUserLogin(testUserId);
+      
+      Alert.alert(
+        'Login Simulation Complete!', 
+        'User cache initialized. Check Schema Viewer to see SQLite records.',
+        [
+          { text: 'View Schema', onPress: goToSchemaViewer },
+          { text: 'OK' }
+        ]
+      );
+      
+    } catch (error) {
+      console.error('Simulate login failed:', error);
+      Alert.alert('Simulation Failed', error.message || 'Unknown error');
+    }
+  };
 
   const [request, response, promptAsync] = AuthSession.useAuthRequest(
   {
@@ -98,12 +124,14 @@ React.useEffect(() => {
       {__DEV__ && (
 
         <>
+          <TouchableOpacity style={[styles.button, { backgroundColor: '#28a745' }]} onPress={simulateLogin}>
+            <Text style={styles.buttonText}>🧪 Simulate Login (Test SQLite)</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity style={styles.button} onPress={goToSchemaViewer}>
-            <Text style={styles.buttonText}>View Schema</Text>
+            <Text style={styles.buttonText}>View Schema & Cache Data</Text>
           </TouchableOpacity>
                
-          
-
           <TouchableOpacity style={styles.button} onPress={goToJobQueue}>
             <Text style={styles.buttonText}>Go to JobQueue</Text>
           </TouchableOpacity>

@@ -10,10 +10,10 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     slug: "HubMobile",
     version: "3.0.0",
     orientation: "portrait",
-    icon: "./assets/holman_icon.png",
+    icon: "./assets/upfit_icon_225.png",
     userInterfaceStyle: "light",
     splash: {
-      image: "./assets/holman_icon.png",
+      image: "./assets/upfit_icon_225.png",
       resizeMode: "contain",
       backgroundColor: "#ffffff",
     },
@@ -22,7 +22,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       package: "com.ericlapierre.HubMobile",
       versionCode: 2,
       adaptiveIcon: {
-        foregroundImage: "./assets/holman_icon.png",
+        foregroundImage: "./assets/upfit_icon_225.png",
         backgroundColor: "#ffffff",
       },
       edgeToEdgeEnabled: true,
@@ -41,6 +41,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     plugins: [
       "expo-web-browser",
       "expo-sqlite",
+      "expo-localization"
     ],
     extra: {
       apiBaseUrl: process.env.API_BASE_URL,

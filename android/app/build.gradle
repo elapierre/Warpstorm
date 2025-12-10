@@ -89,7 +89,7 @@ android {
 
     namespace 'com.ericlapierre.HubMobile'
     defaultConfig {
-        applicationId 'com.HubMobile'
+        applicationId 'com.ericlapierre.HubMobile'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 2

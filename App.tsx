@@ -12,7 +12,7 @@ import JobQueueScreen from './src/ui/screens/jobQueue';
 import { store } from './src/redux/stateStore';
 import { setExpoPushToken } from './src/redux/pushNotice/pushTokenSlice';
 import { Provider } from 'react-redux';
-import { startupService } from './src/services/startupService';
+import { serviceManager } from './src/services/serviceManager';
 import SchemaViewer from './src/ui/screens/schemaViewer';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -23,8 +23,8 @@ export default function App() {
     console.log('Start to register for push notifications');
     registerForPushNotificationsAsync();
 
-    // Initialize DB and device info
-    startupService.init().catch((err) => console.error('Startup init failed', err));
+    // Initialize all application services
+    serviceManager.initialize().catch((err) => console.error('Service initialization failed', err));
     
     // Optional: Listen for notifications while app is foreground
     const subscription = Notifications.addNotificationReceivedListener(notification => {
@@ -86,7 +86,9 @@ async function registerForPushNotificationsAsync() {
     store.dispatch(setExpoPushToken(token));
 
     console.log('Expo push token obtained:', token);
-    // TODO: Save token to backend
+    
+    // Notify service manager of token update
+    await serviceManager.onPushTokenUpdate(token);
   } catch (error) {
     console.error('Failed to get Expo push token:', error);
     Alert.alert('Error fetching push token. See console logs.');
