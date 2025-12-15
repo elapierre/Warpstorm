@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.ericlapierre.HubMobile'
+    namespace 'com.holman.upfit.mobile'
     defaultConfig {
-        applicationId 'com.ericlapierre.HubMobile'
+        applicationId 'com.holman.upfit.mobile'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 2
@@ -98,19 +98,16 @@ android {
         buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL", "\"${findProperty('reactNativeReleaseLevel') ?: 'stable'}\""
     }
     signingConfigs {
-        //debug {
-        //    storeFile file('debug.keystore')
-        //    storePassword 'android'
-        //    keyAlias 'androiddebugkey'
-        //    keyPassword 'android'
-        //}
-        release {
-        // EAS injects release keystore at build time
+        debug {
+            storeFile file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
         }
     }
     buildTypes {
         debug {
-            //signingConfig signingConfigs.debug
+            signingConfig signingConfigs.debug
         }
         release {
             // Caution! In production, you need to generate your own keystore file.
@@ -159,12 +156,6 @@ dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
 
-        // Use Firebase BoM to manage versions
-    implementation platform('com.google.firebase:firebase-bom:32.2.0')
-
-    // Firebase Messaging for push notifications
-    implementation 'com.google.firebase:firebase-messaging'
-
     def isGifEnabled = (findProperty('expo.gif.enabled') ?: "") == "true";
     def isWebpEnabled = (findProperty('expo.webp.enabled') ?: "") == "true";
     def isWebpAnimatedEnabled = (findProperty('expo.webp.animated') ?: "") == "true";
@@ -189,5 +180,3 @@ dependencies {
         implementation jscFlavor
     }
 }
-
-apply plugin: 'com.google.gms.google-services'

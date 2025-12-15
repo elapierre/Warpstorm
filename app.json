@@ -23,7 +23,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.ericlapierre.HubMobile"
+      "package": "com.holman.upfit.mobile"
     },
     "web": {
       "favicon": "./assets/favicon.png"

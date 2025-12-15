@@ -8,6 +8,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ...config,
     name: "HubMobile",
     slug: "HubMobile",
+    scheme:"com.holman.upfit.mobile",
     version: "3.0.0",
     orientation: "portrait",
     icon: "./assets/upfit_icon_225.png",
@@ -19,7 +20,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     },
     android: {
       ...config.android,
-      package: "com.ericlapierre.HubMobile",
+      package: "com.holman.upfit.mobile",
       versionCode: 2,
       adaptiveIcon: {
         foregroundImage: "./assets/upfit_icon_225.png",
@@ -33,6 +34,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     : { googleServicesFile: process.env.GOOGLE_SERVICES_JSON }),
     },
     ios: {
+      bundleIdentifier: "com.holman.upfit.mobile",
       supportsTablet: true,
     },
     web: {

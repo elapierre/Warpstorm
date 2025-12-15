@@ -129,7 +129,7 @@ export class NativeDataCollector {
         // Localization
         locale: Localization.getLocales()[0]?.languageTag ?? 'en-US',
         timezone: Localization.getCalendars()[0]?.timeZone ?? 'UTC',
-        isRTL: Localization.isRTL,
+        isRTL: Localization.getLocales()[0]?.textDirection === 'rtl',
         region: Localization.getLocales()[0]?.regionCode ?? null,
         
         // Battery (if available) - null for emulators
@@ -152,7 +152,8 @@ export class NativeDataCollector {
       
     } catch (error) {
       console.error('Error during native data collection:', error);
-      throw new Error(`Failed to collect native device data: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to collect native device data: ${errorMessage}`);
     }
   }
 

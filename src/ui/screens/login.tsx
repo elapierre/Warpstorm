@@ -60,15 +60,18 @@ const goToSchemaViewer = () => {
       
     } catch (error) {
       console.error('Simulate login failed:', error);
-      Alert.alert('Simulation Failed', error.message || 'Unknown error');
+      Alert.alert('Simulation Failed', (error as Error).message || 'Unknown error');
     }
   };
 
   const [request, response, promptAsync] = AuthSession.useAuthRequest(
   {
-    clientId: Constants.expoConfig?.extra?.authSettings.clientId,
-    scopes: ['openid', 'profile', 'email', 'offline_access'],
-    redirectUri: AuthSession.makeRedirectUri({ scheme: 'hub-mobile' }),
+    clientId: 'holman-upfit-mobile-app.dev',//Constants.expoConfig?.extra?.authSettings.clientId,
+    scopes: ['openid', 'profile', 'email', 'offline_access', 'azure_holman_apim'],
+    redirectUri: AuthSession.makeRedirectUri({ 
+      scheme: 'com.holman.upfit.mobile',
+      path: 'callback'
+    }),
     usePKCE: true,
   },
   {
@@ -78,16 +81,50 @@ const goToSchemaViewer = () => {
   }
 );
 
+// Log the generated codeVerifier to console
 React.useEffect(() => {
-  if (response?.type === 'success') {
-    const { access_token, expires_in } = response.params;
-    const expiresIn = parseInt(expires_in ?? '3600', 10);
-    setToken(access_token, expiresIn);
-    Alert.alert('Login Successful');
-  } else if (response?.type === 'error') {
-    Alert.alert('Login Failed', response.error?.message || 'Unknown error');
+  if (request?.codeVerifier) {
+    console.log('Generated PKCE code_verifier:', request.codeVerifier);
   }
+}, [request])
+
+React.useEffect(() => {
+  const fetchToken = async () => {
+    if (response?.type === 'success' && response.params.code) {
+      try {
+        const tokenResponse = await AuthSession.exchangeCodeAsync(
+          {
+            clientId: 'holman-upfit-mobile-app.dev',//Constants.expoConfig?.extra?.authSettings.clientId,
+            code: response.params.code,
+            redirectUri: AuthSession.makeRedirectUri({ scheme: 'com.holman.upfit.mobile', path: 'callback' }),
+            extraParams: {
+              code_verifier: request?.codeVerifier ?? '',
+            },
+          },
+          {
+            tokenEndpoint: 'https://passport.dev.holman.com/sts/connect/token',
+          }
+        );
+
+        const { accessToken, refreshToken, expiresIn, idToken } = tokenResponse;
+        setToken(accessToken, parseInt(expiresIn?.toString() ?? '3600', 10));
+        Alert.alert('Login Successful');
+
+        console.log('Access Token:', accessToken);
+        console.log('Refresh Token:', refreshToken);
+        console.log('ID Token:', idToken);
+        console.log('Expires In:', expiresIn);
+
+      } catch (err) {
+        console.log('Token Exchange Failed', (err as Error).message);
+        Alert.alert('Token Exchange Failed', (err as Error).message);
+      }
+    }
+  };
+
+  fetchToken();
 }, [response]);
+
 
 
   return (

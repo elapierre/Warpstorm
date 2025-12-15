@@ -1,4 +1,4 @@
-package com.ericlapierre.HubMobile
+package com.holman.upfit.mobile
 
 import android.os.Build
 import android.os.Bundle

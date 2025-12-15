@@ -75,7 +75,6 @@ export const serviceManager = {
       // TODO: Initialize other user-specific services
       // await locationService.startUserTracking(userId);
       // await notificationService.subscribeToUserChannels(userId);
-
       console.log('🎉 User login services initialized successfully');
 
     } catch (error) {

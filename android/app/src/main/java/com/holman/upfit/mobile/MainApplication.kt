@@ -1,4 +1,4 @@
-package com.ericlapierre.HubMobile
+package com.holman.upfit.mobile
 
 import android.app.Application
 import android.content.res.Configuration
@@ -16,10 +16,6 @@ import com.facebook.react.defaults.DefaultReactNativeHost
 import expo.modules.ApplicationLifecycleDispatcher
 import expo.modules.ReactNativeHostWrapper
 
-// --- BEGIN FIREBASE IMPORT ---
-import com.google.firebase.FirebaseApp
-// --- END FIREBASE IMPORT ---
-
 class MainApplication : Application(), ReactApplication {
 
   override val reactNativeHost: ReactNativeHost = ReactNativeHostWrapper(
@@ -31,11 +27,11 @@ class MainApplication : Application(), ReactApplication {
               // add(MyReactNativePackage())
             }
 
-        override fun getJSMainModuleName(): String = ".expo/.virtual-metro-entry"
+          override fun getJSMainModuleName(): String = ".expo/.virtual-metro-entry"
 
-        override fun getUseDeveloperSupport(): Boolean = BuildConfig.DEBUG
+          override fun getUseDeveloperSupport(): Boolean = BuildConfig.DEBUG
 
-        override val isNewArchEnabled: Boolean = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
+          override val isNewArchEnabled: Boolean = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
       }
   )
 
@@ -44,12 +40,6 @@ class MainApplication : Application(), ReactApplication {
 
   override fun onCreate() {
     super.onCreate()
-    
-    // --- BEGIN FIREBASE INITIALIZATION ---
-    // Initialize Firebase before any FCM / push notifications are used
-    FirebaseApp.initializeApp(this)
-    // --- END FIREBASE INITIALIZATION ---
-    
     DefaultNewArchitectureEntryPoint.releaseLevel = try {
       ReleaseLevel.valueOf(BuildConfig.REACT_NATIVE_RELEASE_LEVEL.uppercase())
     } catch (e: IllegalArgumentException) {
